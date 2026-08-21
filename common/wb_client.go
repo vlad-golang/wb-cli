@@ -7,20 +7,36 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type WbClient struct {
 	Token string
 }
 
-func (w *WbClient) WbSearch(ctx context.Context, query string) (SearchResponse, error) {
-	client := &http.Client{}
+func (w *WbClient) WbSearch(ctx context.Context, query string, page int) (SearchResponse, error) {
+	params := url.Values{
+		"ab_testing":         {"false"},
+		"appType":            {"1"},
+		"curr":               {"rub"},
+		"dest":               {"1259570991"},
+		"hide_dtype":         {"15"},
+		"hide_vflags":        {"4294967296"},
+		"inheritFilters":     {"true"},
+		"lang":               {"ru"},
+		"locale":             {"ru"},
+		"page":               {strconv.Itoa(page)},
+		"query":              {query},
+		"resultset":          {"catalog"},
+		"sort":               {"popular"},
+		"spp":                {"30"},
+		"suppressSpellcheck": {"false"},
+	}
+
 	req, err := http.NewRequestWithContext(
 		ctx,
 		"GET",
-		"https://www.wildberries.ru/__internal/u-search/exactmatch/ru/common/v18/search?ab_testing=false&appType=1&curr=rub&dest=1259570991&hide_dtype=15&hide_vflags=4294967296&inheritFilters=true&lang=ru&locale=ru&query="+url.QueryEscape(
-			query,
-		)+"&resultset=catalog&sort=popular&spp=30&suppressSpellcheck=false",
+		"https://www.wildberries.ru/__internal/u-search/exactmatch/ru/common/v18/search?"+params.Encode(),
 		nil,
 	)
 	if err != nil {
@@ -29,6 +45,7 @@ func (w *WbClient) WbSearch(ctx context.Context, query string) (SearchResponse, 
 	req.Header.Set("deviceid", "site_7f2ffa244cbb49599e3678e498a4e726")
 	req.Header.Set("cookie", w.Token)
 
+	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
