@@ -2,20 +2,18 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/vlad-golang/wb-cli/command"
-	"github.com/vlad-golang/wb-cli/common"
-
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/philippgille/gokv/bbolt"
 	"github.com/urfave/cli/v3"
+	"github.com/vlad-golang/wb-cli/command"
+	"github.com/vlad-golang/wb-cli/common"
 )
 
 type config struct {
@@ -23,7 +21,6 @@ type config struct {
 	TokenCreatedAt time.Time
 }
 
-// Мелкие неудобства: описания команд в help пустые, product get без форматирования JSON, флага --version нет.
 func main() {
 	if err := run(); err != nil {
 		panic(err)
@@ -38,12 +35,16 @@ func run() error {
 		return fmt.Errorf("os user home dir: %w", err)
 	}
 
-	configFile := filepath.Join(homeDir, "wb-cli", "config.json")
-
-	cfg := config{}
-	err = cleanenv.ReadConfig(configFile, &cfg)
+	store, err := bbolt.NewStore(bbolt.Options{Path: filepath.Join(homeDir, "wb-cli", "bbolt.db")})
 	if err != nil {
-		return fmt.Errorf("read config: %w", err)
+		return fmt.Errorf("open bolt db: %w", err)
+	}
+	defer store.Close()
+
+	var cfg config
+	_, err = store.Get("config", &cfg)
+	if err != nil {
+		return fmt.Errorf("get token created: %w", err)
 	}
 
 	if time.Now().After(cfg.TokenCreatedAt.Add(23 * time.Hour)) {
@@ -54,14 +55,9 @@ func run() error {
 
 		cfg.TokenCreatedAt = time.Now()
 
-		marshaledCfg, err := json.Marshal(&cfg)
+		err = store.Set("config", &cfg)
 		if err != nil {
-			return fmt.Errorf("marshal config: %w", err)
-		}
-
-		err = os.WriteFile(configFile, marshaledCfg, 0o600)
-		if err != nil {
-			return fmt.Errorf("write config: %w", err)
+			return fmt.Errorf("save config: %w", err)
 		}
 	}
 
