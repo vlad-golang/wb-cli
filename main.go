@@ -68,6 +68,12 @@ func run() error {
 	c := command.Command{WbClient: &common.WbClient{Token: cfg.Token}}
 
 	cmd := &cli.Command{
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "verbose",
+				Usage: "enable verbose output",
+			},
+		},
 		Commands: []*cli.Command{
 			c.Product(),
 			c.Feedback(),

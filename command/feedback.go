@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gocarina/gocsv"
 	"github.com/urfave/cli/v3"
 )
 
@@ -23,9 +22,9 @@ func (c *Command) Feedback() *cli.Command {
 						return fmt.Errorf("wb client feedbacks: %w", err)
 					}
 
-					err = gocsv.Marshal(&resp, cmd.Writer)
+					err = printResponse(&resp)
 					if err != nil {
-						return fmt.Errorf("csv marshal: %w", err)
+						return fmt.Errorf("print response: %w", err)
 					}
 
 					return nil

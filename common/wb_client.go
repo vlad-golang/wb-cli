@@ -14,7 +14,7 @@ type WbClient struct {
 	Token string
 }
 
-func (w *WbClient) WbSearch(ctx context.Context, query string, page int) ([]SearchResponse, error) {
+func (w *WbClient) WbSearch(ctx context.Context, query string, page int) (SearchBody, error) {
 	params := url.Values{
 		"ab_testing":         {"false"},
 		"appType":            {"1"},
@@ -40,7 +40,7 @@ func (w *WbClient) WbSearch(ctx context.Context, query string, page int) ([]Sear
 		nil,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("new search request: %w", err)
+		return SearchBody{}, fmt.Errorf("new search request: %w", err)
 	}
 	req.Header.Set("deviceid", "site_7f2ffa244cbb49599e3678e498a4e726")
 	req.Header.Set("cookie", w.Token)
@@ -48,35 +48,21 @@ func (w *WbClient) WbSearch(ctx context.Context, query string, page int) ([]Sear
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("do search request: %w", err)
+		return SearchBody{}, fmt.Errorf("do search request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status code %d", resp.StatusCode)
+		return SearchBody{}, fmt.Errorf("status code %d", resp.StatusCode)
 	}
 
 	var body SearchBody
 	err = json.NewDecoder(resp.Body).Decode(&body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode body: %w", err)
+		return SearchBody{}, fmt.Errorf("failed to decode body: %w", err)
 	}
 
-	searchResp := make([]SearchResponse, 0, len(body.Products))
-	for _, product := range body.Products {
-		searchResp = append(searchResp, SearchResponse{
-			ID:             product.ID,
-			Name:           product.Name,
-			Brand:          product.Brand,
-			PriceRub:       product.Sizes[0].Price.Product / 100,
-			ReviewRating:   product.ReviewRating,
-			SupplierRating: product.SupplierRating,
-			Feedbacks:      product.Feedbacks,
-			RootID:         int(product.Root),
-		})
-	}
-
-	return searchResp, nil
+	return body, nil
 }
 
 func (w *WbClient) GetCard(ctx context.Context, id int) (GetCardBody, error) {
@@ -143,23 +129,11 @@ func (w *WbClient) Feedbacks(ctx context.Context, rootID int) ([]FeedbackRespons
 				Pros:   feedback.Pros,
 				Cons:   feedback.Cons,
 				Rating: feedback.ProductValuation,
-				Date:   feedback.CreatedDate.Format("2006-01-02 15:04"),
 			})
 		}
 	}
 
 	return feedbacks, nil
-}
-
-type SearchResponse struct {
-	ID             int     `csv:"id"`
-	Name           string  `csv:"name"`
-	Brand          string  `csv:"brand"`
-	PriceRub       int     `csv:"price_rub"`
-	ReviewRating   float64 `csv:"review_rating"`
-	SupplierRating float64 `csv:"supplier_rating"`
-	Feedbacks      int     `csv:"feedbacks"`
-	RootID         int     `csv:"root_id"`
 }
 
 type SearchBody struct {
@@ -245,23 +219,25 @@ type SearchBody struct {
 	Total int `json:"total"`
 }
 
+type Options struct {
+	Name             string   `json:"name"`
+	Value            string   `json:"value"`
+	CharcType        int      `json:"charc_type"`
+	IsVariable       bool     `json:"is_variable,omitempty"`
+	VariableValues   []string `json:"variable_values,omitempty"`
+	VariableValueIDs []int    `json:"variable_value_IDs,omitempty"`
+}
+
 type GetCardBody struct {
-	ImtID        int    `json:"imt_id"`
-	NmID         int    `json:"nm_id"`
-	ImtName      string `json:"imt_name"`
-	Slug         string `json:"slug"`
-	SubjName     string `json:"subj_name"`
-	SubjRootName string `json:"subj_root_name"`
-	VendorCode   string `json:"vendor_code"`
-	Description  string `json:"description"`
-	Options      []struct {
-		Name             string   `json:"name"`
-		Value            string   `json:"value"`
-		CharcType        int      `json:"charc_type"`
-		IsVariable       bool     `json:"is_variable,omitempty"`
-		VariableValues   []string `json:"variable_values,omitempty"`
-		VariableValueIDs []int    `json:"variable_value_IDs,omitempty"`
-	} `json:"options"`
+	ImtID        int       `json:"imt_id"`
+	NmID         int       `json:"nm_id"`
+	ImtName      string    `json:"imt_name"`
+	Slug         string    `json:"slug"`
+	SubjName     string    `json:"subj_name"`
+	SubjRootName string    `json:"subj_root_name"`
+	VendorCode   string    `json:"vendor_code"`
+	Description  string    `json:"description"`
+	Options      []Options `json:"options"`
 	Compositions []struct {
 		Name string `json:"name"`
 	} `json:"compositions"`
@@ -430,9 +406,8 @@ type FeedbacksBody struct {
 }
 
 type FeedbackResponse struct {
-	Text   string `csv:"text"`
-	Pros   string `csv:"pros"`
-	Cons   string `csv:"cons"`
-	Rating int    `csv:"rating"`
-	Date   string `csv:"date"`
+	Text   string `json:"text"`
+	Pros   string `json:"pros"`
+	Cons   string `json:"cons"`
+	Rating int    `json:"rating"`
 }
