@@ -18,15 +18,16 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+type config struct {
+	Token          string
+	TokenCreatedAt time.Time
+}
+
+// Мелкие неудобства: описания команд в help пустые, product get без форматирования JSON, флага --version нет.
 func main() {
 	if err := run(); err != nil {
 		panic(err)
 	}
-}
-
-type config struct {
-	Token          string
-	TokenCreatedAt time.Time
 }
 
 func run() error {
@@ -69,6 +70,7 @@ func run() error {
 	cmd := &cli.Command{
 		Commands: []*cli.Command{
 			c.Product(),
+			c.Feedback(),
 		},
 	}
 

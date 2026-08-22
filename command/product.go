@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gocarina/gocsv"
 	"github.com/urfave/cli/v3"
 	"github.com/vlad-golang/wb-cli/common"
 )
@@ -29,12 +30,32 @@ func (c *Command) Product() *cli.Command {
 						return fmt.Errorf("search: %w", err)
 					}
 
-					text, err := json.MarshalIndent(resp, "", "  ")
+					err = gocsv.Marshal(&resp, cmd.Writer)
 					if err != nil {
-						return fmt.Errorf("yaml marshal: %w", err)
+						return fmt.Errorf("csv marshal: %w", err)
 					}
 
-					fmt.Println(string(text))
+					return nil
+				},
+			},
+			{
+				Name: "get",
+				Flags: []cli.Flag{
+					&cli.IntFlag{Name: "id", Aliases: []string{"i"}, Required: true},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					resp, err := c.WbClient.GetCard(ctx, cmd.Int("id"))
+					if err != nil {
+						return fmt.Errorf("wb client get card: %w", err)
+					}
+
+					err = gocsv.Marshal(&resp, cmd.Writer)
+					if err != nil {
+						err := json.NewEncoder(cmd.Writer).Encode(&resp)
+						if err != nil {
+							return fmt.Errorf("json marshal: %w", err)
+						}
+					}
 
 					return nil
 				},
