@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
+	"github.com/toon-format/toon-go"
 	"github.com/urfave/cli/v3"
 	"github.com/vlad-golang/wb-cli/common"
 )
@@ -22,7 +22,7 @@ func (c *Command) Product() *cli.Command {
 				Name: "search",
 				Flags: []cli.Flag{
 					&cli.StringFlag{Name: "query", Required: true, Aliases: []string{"q"}},
-					&cli.IntFlag{Name: "page", Aliases: []string{"p"}, Value: 1, Usage: "results page number"},
+					&cli.IntFlag{Name: "page", Aliases: []string{"p"}, Value: 1},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					resp, err := c.WbClient.WbSearch(ctx, cmd.String("query"), cmd.Int("page"))
@@ -44,7 +44,7 @@ func (c *Command) Product() *cli.Command {
 						})
 					}
 
-					err = printResponse(&searchResp)
+					err = printResponse(&searchResp, cmd)
 					if err != nil {
 						return fmt.Errorf("print response: %w", err)
 					}
@@ -71,14 +71,9 @@ func (c *Command) Product() *cli.Command {
 						Brand:       resp.Selling.BrandName,
 						Description: resp.Description,
 						Options:     resp.Options,
-						Verbose:     resp,
 					}
 
-					if !cmd.IsSet("verbose") {
-						out.Verbose = common.GetCardBody{}
-					}
-
-					err = printResponse(&out)
+					err = printResponse(&out, cmd)
 					if err != nil {
 						return fmt.Errorf("print response: %w", err)
 					}
@@ -90,13 +85,24 @@ func (c *Command) Product() *cli.Command {
 	}
 }
 
-func printResponse(v any) error {
-	jsonString, err := json.MarshalIndent(v, "", " ")
-	if err != nil {
-		return fmt.Errorf("json marshal options: %w", err)
+func printResponse(v any, cmd *cli.Command) error {
+	var marshaled []byte
+	var err error
+
+	switch cmd.String("format") {
+	case "json":
+		marshaled, err = json.MarshalIndent(v, "", " ")
+		if err != nil {
+			return fmt.Errorf("json marshal: %w", err)
+		}
+	default:
+		marshaled, err = toon.Marshal(v)
+		if err != nil {
+			return fmt.Errorf("toon marshal: %w", err)
+		}
 	}
 
-	fmt.Println(string(jsonString))
+	fmt.Println(string(marshaled))
 
 	return nil
 }
@@ -113,19 +119,11 @@ type SearchResponse struct {
 }
 
 type ProductGetOut struct {
-	NmID        int                `json:"nm_id"`
-	ImtID       int                `json:"imt_id"`
-	Name        string             `json:"name"`
-	Slug        string             `json:"slug"`
-	Category    string             `json:"category"`
-	VendorCode  string             `json:"vendor_code"`
-	Brand       string             `json:"brand"`
-	SupplierID  int                `json:"supplier_id"`
-	Description string             `json:"description"`
-	Options     []common.Options   `json:"options"`
-	Colors      []int              `json:"colors"`
-	PhotoCount  int                `json:"photo_count"`
-	HasVideo    bool               `json:"has_video"`
-	CreatedAt   time.Time          `json:"created_at"`
-	Verbose     common.GetCardBody `json:"verbose"`
+	NmID        int              `json:"nm_id"`
+	ImtID       int              `json:"imt_id"`
+	Name        string           `json:"name"`
+	Category    string           `json:"category"`
+	Brand       string           `json:"brand"`
+	Description string           `json:"description"`
+	Options     []common.Options `json:"options"`
 }

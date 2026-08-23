@@ -66,8 +66,12 @@ func run() error {
 	cmd := &cli.Command{
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  "verbose",
-				Usage: "enable verbose output",
+				Name: "verbose",
+			},
+			&cli.StringFlag{
+				Name:  "format",
+				Usage: "toon, json. toon - token efficient. json - you can use jq tool",
+				Value: "toon",
 			},
 		},
 		Commands: []*cli.Command{

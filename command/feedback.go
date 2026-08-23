@@ -22,7 +22,7 @@ func (c *Command) Feedback() *cli.Command {
 						return fmt.Errorf("wb client feedbacks: %w", err)
 					}
 
-					err = printResponse(&resp)
+					err = printResponse(&resp, cmd)
 					if err != nil {
 						return fmt.Errorf("print response: %w", err)
 					}
