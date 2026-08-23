@@ -47,7 +47,7 @@ func run() error {
 		return fmt.Errorf("get token created: %w", err)
 	}
 
-	if time.Now().After(cfg.TokenCreatedAt.Add(23 * time.Hour)) {
+	if time.Now().After(cfg.TokenCreatedAt.Add(4 * time.Hour)) {
 		cfg.Token, err = getToken(ctx)
 		if err != nil {
 			return fmt.Errorf("get token: %w", err)
