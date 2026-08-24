@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -134,6 +135,82 @@ func (w *WbClient) Feedbacks(ctx context.Context, rootID int) ([]FeedbackRespons
 	}
 
 	return feedbacks, nil
+}
+
+type Question struct {
+	Text   string
+	Answer string
+}
+type QuestionsBody struct {
+	Questions []struct {
+		ID            string `json:"id"`
+		WbUserID      int    `json:"wbUserId"`
+		GlobalUserID  string `json:"globalUserId"`
+		WbUserDetails struct {
+			Name     string `json:"name"`
+			Country  string `json:"country"`
+			HasPhoto bool   `json:"hasPhoto"`
+		} `json:"wbUserDetails"`
+		ImtID          int       `json:"imtId"`
+		NmID           int       `json:"nmId"`
+		Text           string    `json:"text"`
+		CreatedDate    time.Time `json:"createdDate"`
+		ProductDetails struct {
+			ImtID           int    `json:"imtId"`
+			NmID            int    `json:"nmId"`
+			ProductName     string `json:"productName"`
+			SupplierArticle string `json:"supplierArticle"`
+			SupplierID      int    `json:"supplierId"`
+			SupplierName    string `json:"supplierName"`
+			BrandID         int    `json:"brandId"`
+			BrandName       string `json:"brandName"`
+		} `json:"productDetails"`
+		Answer struct {
+			Text         string    `json:"text"`
+			SupplierID   int       `json:"supplierId"`
+			EmployeeID   int       `json:"employeeId"`
+			Metadata     any       `json:"metadata"`
+			Editable     bool      `json:"editable"`
+			LastUpdate   time.Time `json:"lastUpdate"`
+			CreateDate   time.Time `json:"createDate"`
+			PlusesCount  int       `json:"plusesCount"`
+			MinusesCount int       `json:"minusesCount"`
+		} `json:"answer"`
+		AnswerValuation any `json:"answerValuation"`
+		Tags            any `json:"tags"`
+		Rank            any `json:"rank"`
+	} `json:"questions"`
+	Count int `json:"count"`
+	Err   any `json:"err"`
+}
+
+func (w *WbClient) Questions(ctx context.Context, rootID int) ([]Question, error) {
+	client := &http.Client{}
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://questions.wildberries.ru/api/v1/questions?imtId="+strconv.Itoa(rootID)+"&take=30&skip=0", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	var body QuestionsBody
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding response body: %w", err)
+	}
+
+	questions := make([]Question, 0, len(body.Questions))
+	for _, q := range body.Questions {
+		questions = append(questions, Question{
+			Text:   q.Text,
+			Answer: q.Answer.Text,
+		})
+	}
+
+	return questions, nil
 }
 
 type SearchBody struct {

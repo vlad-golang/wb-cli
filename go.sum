@@ -22,10 +22,10 @@ github.com/orisano/pixelmatch v0.0.0-20220722002657-fb0b55479cde h1:x0TT0RDC7UhA
 github.com/orisano/pixelmatch v0.0.0-20220722002657-fb0b55479cde/go.mod h1:nZgzbfBr3hhjoZnS66nKrHmduYNpc34ny7RK4z5/HM0=
 github.com/philippgille/gokv v0.7.0 h1:rQSIQspete82h78Br7k7rKUZ8JYy/hWlwzm/W5qobPI=
 github.com/philippgille/gokv v0.7.0/go.mod h1:OwiTP/3bhEBhSuOmFmq1+rszglfSgjJVxd1HOgOa2N4=
-github.com/philippgille/gokv/bbolt v0.7.0 h1:6/jx4bPv1IDgzzwZ/Nxp7uAZJjGmdWoCCKBlFftHZF0=
-github.com/philippgille/gokv/bbolt v0.7.0/go.mod h1:+jX5MMApZwSH1fYrr5tZqXci0NBr6/QrmcA2YWKgTdU=
 github.com/philippgille/gokv/encoding v0.7.0 h1:2oxepKzzTsi00iLZBCZ7Rmqrallh9zws3iqSrLGfkgo=
 github.com/philippgille/gokv/encoding v0.7.0/go.mod h1:yncOBBUciyniPI8t5ECF8XSCwhONE9Rjf3My5IHs3fA=
+github.com/philippgille/gokv/file v0.7.0 h1:gSsMhK03gZUwEOunuslb83bcKWT1NrwbF7WF2NSN9Mo=
+github.com/philippgille/gokv/file v0.7.0/go.mod h1:VpI2UojKLT7zI4PmH2YCEyuLtH/8uK+qoqWfkkoSi7E=
 github.com/philippgille/gokv/test v0.7.0 h1:0wBKnKaFZlSeHxLXcmUJqK//IQGUMeu+o8B876KCiOM=
 github.com/philippgille/gokv/test v0.7.0/go.mod h1:TP/VzO/qAoi6njsfKnRpXKno0hRuzD5wsLnHhtUcVkY=
 github.com/philippgille/gokv/util v0.7.0 h1:5avUK/a3aSj/aWjhHv4/FkqgMon2B7k2BqFgLcR+DYg=
@@ -38,8 +38,6 @@ github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c h1:D8lDFovBMZy
 github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c/go.mod h1:j/BOnpF2ihnz4lELs99h9mwGJBx/zdleOUCnLLRPCsc=
 github.com/urfave/cli/v3 v3.11.0 h1:P/euJp99kb9p0tlVY+iYTLYYTAQlfl0hR2gUO1Img1Q=
 github.com/urfave/cli/v3 v3.11.0/go.mod h1:ysVLtOEmg2tOy6PknnYVhDoouyC/6N42TMeoMzskhso=
-go.etcd.io/bbolt v1.3.8 h1:xs88BrvEv273UsB79e0hcVrlUWmS0a8upikMFhSyAtA=
-go.etcd.io/bbolt v1.3.8/go.mod h1:N9Mkw9X8x5fupy0IKsmuqVtoGDyxsaDlbk4Rd05IAQw=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.47.0 h1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=
 golang.org/x/sys v0.47.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=

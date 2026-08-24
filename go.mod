@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/chromedp/cdproto v0.0.0-20260804232424-e85f50dbfd32
 	github.com/chromedp/chromedp v0.16.0
-	github.com/philippgille/gokv/bbolt v0.7.0
+	github.com/philippgille/gokv/file v0.7.0
 	github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c
 	github.com/urfave/cli/v3 v3.11.0
 )
@@ -18,6 +18,5 @@ require (
 	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/philippgille/gokv/encoding v0.7.0 // indirect
 	github.com/philippgille/gokv/util v0.7.0 // indirect
-	go.etcd.io/bbolt v1.3.8 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 )

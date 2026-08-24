@@ -10,7 +10,7 @@ import (
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/philippgille/gokv/bbolt"
+	"github.com/philippgille/gokv/file"
 	"github.com/urfave/cli/v3"
 	"github.com/vlad-golang/wb-cli/command"
 	"github.com/vlad-golang/wb-cli/common"
@@ -35,14 +35,14 @@ func run() error {
 		return fmt.Errorf("os user home dir: %w", err)
 	}
 
-	store, err := bbolt.NewStore(bbolt.Options{Path: filepath.Join(homeDir, "wb-cli", "bbolt.db")})
+	store, err := file.NewStore(file.Options{Directory: filepath.Join(homeDir, "wb-cli")})
 	if err != nil {
 		return fmt.Errorf("open bolt db: %w", err)
 	}
 	defer store.Close()
 
 	var cfg config
-	_, err = store.Get("config", &cfg)
+	_, err = store.Get("store", &cfg)
 	if err != nil {
 		return fmt.Errorf("get token created: %w", err)
 	}
@@ -55,9 +55,9 @@ func run() error {
 
 		cfg.TokenCreatedAt = time.Now()
 
-		err = store.Set("config", &cfg)
+		err = store.Set("store", &cfg)
 		if err != nil {
-			return fmt.Errorf("save config: %w", err)
+			return fmt.Errorf("save store: %w", err)
 		}
 	}
 
@@ -77,6 +77,7 @@ func run() error {
 		Commands: []*cli.Command{
 			c.Product(),
 			c.Feedback(),
+			c.Question(),
 		},
 	}
 
